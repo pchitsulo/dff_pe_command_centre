@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DFF PE Command Centre</title>
+<meta name="description" content="Launcher for the DFF process evaluation KoboToolbox questionnaires and project backends">
+<meta name="theme-color" content="#0A7A6C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A7A6C'/%3E%3Cpath d='M18 20h28M18 32h28M18 44h18' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #EEF2F5;
+  --surface: #FFFFFF;
+  --ink: #12263A;
+  --muted: #52667A;
+  --line: #D5DEE6;
+  --brand: #0A7A6C;
+  --national: #3B4BA8;
+  --district: #0A7A6C;
+  --facility: #B4561B;
+  --focus: #F2B705;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1A24; --surface: #172633; --ink: #E8EEF3; --muted: #9FB1C1; --line: #2A3C4C;
+    --brand: #4CC7B4; --national: #8F9BF0; --district: #4CC7B4; --facility: #F0955A;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1A24; --surface: #172633; --ink: #E8EEF3; --muted: #9FB1C1; --line: #2A3C4C;
+  --brand: #4CC7B4; --national: #8F9BF0; --district: #4CC7B4; --facility: #F0955A;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px; line-height: 1.45; -webkit-text-size-adjust: 100%;
+}
+main {
+  max-width: 1080px; margin: 0 auto;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Header */
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.eyebrow { margin: 0 0 4px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); }
+h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); line-height: 1.1; margin: 0 0 6px; letter-spacing: -0.015em; }
+.intro { color: var(--muted); margin: 0; max-width: 62ch; }
+.theme {
+  font: inherit; font-size: 0.9rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; min-height: 40px; cursor: pointer;
+}
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.stat b { display: block; font-size: 1.6rem; line-height: 1.1; }
+.stat span { color: var(--muted); font-size: 0.85rem; }
+.stat.national b { color: var(--national); }
+.stat.district b { color: var(--district); }
+.stat.facility b { color: var(--facility); }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 8px; }
+.search { flex: 1 1 260px; position: relative; }
+.search input {
+  width: 100%; font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px 11px 40px; min-height: 46px;
+}
+.search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: inherit; font-size: 0.92rem; font-weight: 600; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; min-height: 42px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.empty { display: none; color: var(--muted); padding: 24px 0; }
+.empty.show { display: block; }
+
+/* Sections and cards */
+section { margin-top: 24px; }
+section[hidden] { display: none; }
+h2 { display: flex; align-items: center; gap: 10px; font-size: 1.12rem; margin: 0 0 10px; }
+h2::before { content: ""; width: 14px; height: 14px; border-radius: 4px; background: var(--c); }
+h2 small { font-weight: 400; color: var(--muted); font-size: 0.92rem; }
+.national { --c: var(--national); }
+.district { --c: var(--district); }
+.facility { --c: var(--facility); }
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.card {
+  display: flex; flex-direction: column; gap: 12px; height: 100%;
+  background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--c);
+  border-radius: 10px; padding: 14px 16px;
+}
+.card[hidden] { display: none; }
+.num { font-size: 0.8rem; font-weight: 700; color: var(--c); letter-spacing: 0.04em; }
+.name { font-weight: 700; font-size: 1.04rem; display: block; margin-top: 2px; }
+.who { color: var(--muted); font-size: 0.9rem; display: block; margin-top: 2px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font: inherit; font-size: 0.92rem; font-weight: 700; text-decoration: none;
+  border-radius: 999px; padding: 8px 16px; min-height: 42px; cursor: pointer;
+}
+.btn.primary { background: var(--c); color: var(--surface); border: 2px solid var(--c); }
+.btn.secondary { background: transparent; color: var(--c); border: 2px solid var(--c); }
+.btn.copy { background: transparent; color: var(--muted); border: 1px solid var(--line); font-weight: 600; }
+.btn.disabled { background: transparent; color: var(--muted); border: 2px dashed var(--line); cursor: not-allowed; font-weight: 600; }
+.btn:focus-visible, .chip:focus-visible, .theme:focus-visible, .search input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.btn:active { transform: scale(0.98); }
+
+footer { margin-top: 34px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--line); padding-top: 16px; }
+footer p { margin: 0 0 8px; max-width: 75ch; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 0.92rem;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (min-width: 680px) { ul { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 980px) { ul { grid-template-columns: 1fr 1fr 1fr; } }
+@media (max-width: 520px) { .stats { grid-template-columns: 1fr 1fr; } }
+@media (prefers-reduced-motion: reduce) { .btn:active { transform: none; } .toast { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <p class="eyebrow">DFF Process Evaluation</p>
+      <h1>DFF PE Command Centre</h1>
+      <p class="intro">Open a questionnaire to collect data, or open its KoboToolbox backend to check submissions and progress.</p>
+    </div>
+    <button type="button" class="theme" id="themeBtn" aria-label="Switch colour theme">Theme: auto</button>
+  </header>
+
+  <div class="stats" aria-label="Tool counts">
+    <div class="stat"><b id="statTotal">0</b><span>Total tools</span></div>
+    <div class="stat national"><b id="statNational">0</b><span>National</span></div>
+    <div class="stat district"><b id="statDistrict">0</b><span>District</span></div>
+    <div class="stat facility"><b id="statFacility">0</b><span>Facility</span></div>
+  </div>
+
+  <div class="controls">
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="q" placeholder="Search tools, e.g. KII, HCMC, fidelity" aria-label="Search tools" autocomplete="off">
+    </label>
+    <div class="chips" role="group" aria-label="Filter by level">
+      <button type="button" class="chip" data-level="all" aria-pressed="true">All</button>
+      <button type="button" class="chip" data-level="National" aria-pressed="false">National</button>
+      <button type="button" class="chip" data-level="District" aria-pressed="false">District</button>
+      <button type="button" class="chip" data-level="Facility" aria-pressed="false">Facility</button>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+  <p class="empty" id="empty">No tools match your search.</p>
+
+  <footer>
+    <p><strong>Questionnaire</strong> opens the data collection form. Open each form once while online; after that it works offline, and submissions upload the next time the device is online.</p>
+    <p><strong>Backend</strong> opens the project summary in KoboToolbox. You need to be signed in to an account with access to the project.</p>
+    <p>If a tool has been updated in KoboToolbox, open its questionnaire while online and refresh the page twice to download the new version.</p>
+  </footer>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Edit this list to add, remove or update tools. Leave backend as "" if there is no link yet. */
+var TOOLS = [
+  { level: "National", name: "MoHS / DFF Taskforce KII", who: "",
+    form: "https://ee.kobotoolbox.org/x/FYQvGVw5",
+    backend: "https://kf.kobotoolbox.org/#/forms/amZULSNy7NXs2vXQn7sEVW/summary" },
+  { level: "National", name: "Implementing Partners KII", who: "",
+    form: "https://ee.kobotoolbox.org/x/WVoDgeEX",
+    backend: "https://kf.kobotoolbox.org/#/forms/aJjXgrN2CERjvLAzEZSMMB/summary" },
+  { level: "National", name: "DFF Acceptability Questionnaire - National-Level Partners & Stakeholders", who: "",
+    form: "https://ee.kobotoolbox.org/x/2F4pUjm9",
+    backend: "https://kf.kobotoolbox.org/#/forms/azMSFSF9X9VrFXdtk9i4bL/summary" },
+  { level: "District", name: "DFF Competence Assessment - DHMT/District Level", who: "",
+    form: "https://ee.kobotoolbox.org/x/ChuTgQKg",
+    backend: "https://kf.kobotoolbox.org/#/forms/adc6FZUzfaK7qHRDXaFfNK/summary" },
+  { level: "District", name: "DFF Governance, Financing Arrangements and Outcomes: DHMT KII Guide", who: "Chair, DFO, DOF",
+    form: "https://ee.kobotoolbox.org/x/iTUgcBwy",
+    backend: "https://kf.kobotoolbox.org/#/forms/a5bmG8QEos7ky5KGGn6kuK/summary" },
+  { level: "District", name: "DFF Implementation Fidelity KII Guide - DHMT Level", who: "",
+    form: "https://ee.kobotoolbox.org/x/l3HTkTBd",
+    backend: "https://kf.kobotoolbox.org/#/forms/aChkGfjknDH37HcvAsDzn3/summary" },
+  { level: "Facility", name: "DFF Governance, Financing Arrangements and Outcomes: Facility In-Charge KII Tool", who: "",
+    form: "https://ee.kobotoolbox.org/x/XNVUU5vl",
+    backend: "https://kf.kobotoolbox.org/#/forms/aurMGs8YjrwZBvVm7DGrX5/summary" },
+  { level: "Facility", name: "Facility Implementation Fidelity Assessment Guide", who: "",
+    form: "https://ee.kobotoolbox.org/x/vLQnIatN",
+    backend: "https://kf.kobotoolbox.org/#/forms/awsnhxAnLkQ6aJ85dPuP5H/summary" },
+  { level: "Facility", name: "DFF Governance, Financing Arrangements and Outcomes: HCMC FGD Guide", who: "Health centre management committees",
+    form: "https://ee.kobotoolbox.org/x/zTbgkdb7",
+    backend: "" }
+];
+
+(function () {
+  var LEVELS = ["National", "District", "Facility"];
+  var root = document.getElementById("sections");
+  var activeLevel = "all";
+
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    for (var k in attrs) { if (k === "className") n.className = attrs[k]; else n.setAttribute(k, attrs[k]); }
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function link(cls, href, label) {
+    return el("a", { className: "btn " + cls, href: href, target: "_blank", rel: "noopener" }, label);
+  }
+
+  // Build sections
+  LEVELS.forEach(function (level) {
+    var tools = TOOLS.filter(function (t) { return t.level === level; });
+    if (!tools.length) return;
+    var sec = el("section", { className: level.toLowerCase(), "data-level": level });
+    var h2 = el("h2", {}, level + " level ");
+    h2.appendChild(el("small", {}, tools.length + (tools.length === 1 ? " tool" : " tools")));
+    sec.appendChild(h2);
+    var ul = el("ul");
+    tools.forEach(function (t) {
+      var n = TOOLS.indexOf(t) + 1;
+      var li = el("li", { className: "card", "data-search": (t.name + " " + t.who + " " + t.level).toLowerCase() });
+      var head = el("div");
+      head.appendChild(el("span", { className: "num" }, "TOOL " + String(n).padStart(2, "0")));
+      head.appendChild(el("span", { className: "name" }, t.name));
+      if (t.who) head.appendChild(el("span", { className: "who" }, t.who));
+      li.appendChild(head);
+
+      var actions = el("div", { className: "actions" });
+      actions.appendChild(link("primary", t.form, "Questionnaire"));
+      if (t.backend) actions.appendChild(link("secondary", t.backend, "Backend"));
+      else actions.appendChild(el("span", { className: "btn disabled", title: "No backend link has been added for this tool yet" }, "No backend link"));
+      var copy = el("button", { type: "button", className: "btn copy", "aria-label": "Copy questionnaire link for " + t.name }, "Copy link");
+      copy.addEventListener("click", function () { copyText(t.form); });
+      actions.appendChild(copy);
+      li.appendChild(actions);
+      ul.appendChild(li);
+    });
+    sec.appendChild(ul);
+    root.appendChild(sec);
+  });
+
+  // Stats
+  document.getElementById("statTotal").textContent = TOOLS.length;
+  LEVELS.forEach(function (l) {
+    document.getElementById("stat" + l).textContent = TOOLS.filter(function (t) { return t.level === l; }).length;
+  });
+
+  // Filtering
+  var q = document.getElementById("q");
+  function applyFilter() {
+    var term = q.value.trim().toLowerCase();
+    var anyVisible = false;
+    root.querySelectorAll("section").forEach(function (sec) {
+      var levelOk = activeLevel === "all" || sec.getAttribute("data-level") === activeLevel;
+      var visibleInSec = 0;
+      sec.querySelectorAll(".card").forEach(function (card) {
+        var show = levelOk && (!term || card.getAttribute("data-search").indexOf(term) !== -1);
+        card.hidden = !show;
+        if (show) visibleInSec++;
+      });
+      sec.hidden = visibleInSec === 0;
+      if (visibleInSec) anyVisible = true;
+    });
+    document.getElementById("empty").classList.toggle("show", !anyVisible);
+  }
+  q.addEventListener("input", applyFilter);
+  document.querySelectorAll(".chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      activeLevel = chip.getAttribute("data-level");
+      document.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c === chip)); });
+      applyFilter();
+    });
+  });
+
+  // Copy link
+  var toast = document.getElementById("toast"), toastTimer;
+  function showToast(msg) {
+    toast.textContent = msg; toast.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+  }
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { showToast("Link copied"); }, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var ta = el("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); showToast("Link copied"); } catch (e) { showToast("Could not copy link"); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  // Theme toggle: auto → light → dark
+  var modes = ["auto", "light", "dark"], btn = document.getElementById("themeBtn");
+  function setTheme(m) {
+    if (m === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", m);
+    btn.textContent = "Theme: " + m;
+    try { localStorage.setItem("dff-theme", m); } catch (e) {}
+  }
+  var saved = "auto";
+  try { saved = localStorage.getItem("dff-theme") || "auto"; } catch (e) {}
+  setTheme(modes.indexOf(saved) >= 0 ? saved : "auto");
+  btn.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme") || "auto";
+    setTheme(modes[(modes.indexOf(cur) + 1) % modes.length]);
+  });
+})();
+</script>
+</body>
+</html>
